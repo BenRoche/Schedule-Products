@@ -1,15 +1,23 @@
 Schedule Products
 ====
-Contents:
-----
+
 <i>This should successfully deploy to any organisation that does not have multi-currency enabled. 
-You need to ensure that the products used have got revenue scheduling enabled.</i>
+You need to ensure that the products used have got Revenue Scheduling enabled.
+Please let me know of any bugs or enhancements you discover.</i>
+
+Instructions:
+----
+In order to use this, you will need to addthe Schedule Products button to the Products related list on the relevant Opportunity page layout.
+
+Click the button below andfollow the on-screen instructions.
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=EllieAtWHL&repo=Schedule-Products">
   <img alt="Deploy to Salesforce"
        src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
 </a>
 
+Contents:
+----
 **Unpackaged**
 
 classes
