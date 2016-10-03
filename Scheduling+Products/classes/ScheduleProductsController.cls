@@ -346,7 +346,6 @@ public class ScheduleProductsController {
         public Id OLIId{get;set;}
         public string OLIName{get;set;}
         public string OLIProductCode{get;set;}
-        public string OLIDivisionCode {get;set;}
         public decimal OLIQuantity{get;set;}
         public decimal OLITotalPrice{get;set;}
         public date OLIServiceDate{get;set;}
@@ -361,7 +360,6 @@ public class ScheduleProductsController {
             OLIQuantity = o.Quantity;
             OLITotalPrice = o.TotalPrice.setScale(2);
             OLIServiceDate = o.ServiceDate;
-            OLIDivisionCode = o.Division_Code__c;
             isSelected=false;
         }
     }
