@@ -13,7 +13,7 @@
         <members>ScheduleProducts</members>
         <name>ApexPage</name>
     </types>
-        <types>
+    <types>
         <members>InstallmentType__mdt.Days_Between_Schedules__c</members>
         <members>InstallmentType__mdt.Sort_Order__c</members>
         <name>CustomField</name>
