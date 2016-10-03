@@ -2,7 +2,7 @@ Schedule Products
 ====
 Contents:
 ----
-<i>This should successfully deploy to any organisation that does not have multi-currency enabled. You will need to create the data that sits within the custom settings for this to work successfully.</i>
+<i>This should successfully deploy to any organisation that does not have multi-currency enabled. YOu need to ensure that the products used have got revenue scheduling enabled.</i>
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=EllieAtWHL&repo=Schedule-Products">
   <img alt="Deploy to Salesforce"
@@ -18,18 +18,16 @@ classes
 * [TestSelectOptionSort] [4] (Test Unit)
 
 objects
-* [Installment_Type__c] [5] (Custom Setting)
-* [Schedule_Type__c][6] (Custom Setting)
+* [Installment_Type__c] [5] (Custom Metadata)
+* [Schedule_Type__c][6] (Custom Metadata)
 * [OpportunityLineItem][7] (Button)
 
 pages
 * [ScheduleProducts][8]
 
-[package.xml] [13]
+**package**
 
-**CSV**
-* [InstallmentType][10] (data for custom setting)
-* [ScheduleType][11] (data for custom setting)
+[package.xml] [13]
 
 **Read Me**
 * [readme.md][12]
@@ -38,11 +36,9 @@ pages
 [2]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/classes/SelectOptionSorter.cls
 [3]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/classes/TestScheduleProducts.cls
 [4]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/classes/TestSelectOptionSorter.cls
-[5]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/Installment_Type__c.object
-[6]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/Schedule_Type__c.object
+[5]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/InstallmentType__mdt.object
+[6]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/ScheduleType__mdt.object
 [7]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/OpportunityLineItem.object
 [8]: https://github.com/EllieAtWHL/Schedule-Productsg/blob/master/Scheduling%2BProducts/pages/ScheduleProducts.page
-[10]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/InstallmentType.csv
-[11]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/ScheduleType.csv
 [12]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/README.md
 [13]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/package.xml
