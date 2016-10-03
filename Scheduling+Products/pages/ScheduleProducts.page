@@ -18,14 +18,13 @@
                     </apex:column>
                     <apex:column headerValue="Product Name" value="{!OLI.OLIName}"/>
                     <apex:column headerValue="Product Code" value="{!OLI.OLIProductCode}"/>
-                    <apex:column headerValue="Division Code" value="{!OLI.OLIDivisionCode}"/>
                     <apex:column headerValue="Quantity">
                       	<apex:outputText value="{0, number, 0}">
                             <apex:param value="{!OLI.OLIQuantity}"/>
                         </apex:outputText>
                     </apex:column>
                     <apex:column headerValue="Total Price">
-                        {!opp.CurrencyIsoCode}&nbsp;<apex:outputText value="{0, number, ###,###,###,###,##0.00}">
+                        <apex:outputText value="{0, number, ###,###,###,###,##0.00}">
                             <apex:param value="{!OLI.OLITotalPrice}"/>
                         </apex:outputText>
                     </apex:column>
