@@ -27,10 +27,10 @@ public class ScheduleProductsController {
     public ScheduleProductsController (ApexPages.StandardController sc) {
 	//Gets the opp that button was clicked from
         OppId=ApexPages.currentPage().getParameters().get('Oppid');
-        Opp = [SELECT Id, CloseDate FROM Opportunity WHERE Id = :OppId];
+        Opp = [SELECT Id, CloseDate, CurrencyIsoCode FROM Opportunity WHERE Id = :OppId];
         system.debug('Opportunity Information: ' + Opp);
 	//Gets the Line Items of the Opp
-        OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
+        OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate, Division_Code__c FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
         system.debug('Line Item Information: ' + OLIs);
 	//Creates a wrapper to combine the line items with the select box
         wrapOLIList = new list<wrapOLI>();
@@ -70,8 +70,8 @@ public class ScheduleProductsController {
         }
         system.debug('recalculate | Schedule type is multiply: ' + multiply);
 	//Gets installment type
-        List <Installment_Type__c> tempTypeList = [SELECT Name, Days_Between_Schedules__c FROM Installment_Type__c WHERE SortOrder__c = :tempSch.InstallmentType];
-        Installment_Type__c tempType = tempTypeList[0];
+        List <InstallmentType__mdt> tempTypeList = [SELECT Label, Days_Between_Schedules__c FROM InstallmentType__mdt WHERE Sort_Order__c = :tempSch.InstallmentType];
+        InstallmentType__mdt tempType = tempTypeList[0];
         Integer daysToAdd = Integer.valueof(tempType.Days_Between_Schedules__c);
         system.debug('recalculate | Days to add: ' + daysToAdd);
 	//Gets start date
@@ -316,28 +316,29 @@ public class ScheduleProductsController {
         List<SelectOption> splitOptions = new List<SelectOption>();
         
         //Values retrieved from the Schedule Type custom setting
-   		for(Schedule_Type__c setting : Schedule_Type__c.getAll().values()){
-            splitOptions.add(new SelectOption(setting.Name,setting.Name)); 
+   		List<ScheduleType__mdt> sTypes = [SELECT Label FROM ScheduleType__mdt];
+   		for(ScheduleType__mdt setting : sTypes){
+            splitOptions.add(new SelectOption(setting.Label,setting.Label)); 
         }     
     	
         SelectOptionSorter.doSort(splitOptions, SelectOptionSorter.FieldToSort.Value);
         system.debug('getSplitOption | Options for Type picklist: ' + splitOptions);
         return splitOptions;
-        
     }  
     
     //This gets the installment options (e.g. daily/weekly) from the Installment Type custom setting
     public List<SelectOption> getTypeOptions () {
          List<SelectOption> options = new List<SelectOption>();
          
-         //Values retrieved from the Installment Type custom setting
-         for(Installment_Type__c setting : Installment_Type__c.getAll().values()){
-             options.add(new SelectOption(String.ValueOf(setting.SortOrder__c),setting.Name)); 
-         }     
+	//Values retrieved from the Installment Type custom setting
+		List<InstallmentType__mdt> iTypes = [SELECT Label, Sort_Order__c FROM InstallmentType__mdt];
+        for(InstallmentType__mdt setting : iTypes){
+        	options.add(new SelectOption(String.ValueOf(setting.Sort_Order__c),setting.Label)); 
+        }     
          
-         SelectOptionSorter.doSort(options, SelectOptionSorter.FieldToSort.Value);
-         system.debug('getTypeOption | Options for Schedule Type picklist: ' + options);
-         return options;
+        SelectOptionSorter.doSort(options, SelectOptionSorter.FieldToSort.Value);
+        system.debug('getTypeOption | Options for Schedule Type picklist: ' + options);
+        return options;
     }
     
     //This creates the wrapper object containing line itmes fields with a checkbox
@@ -346,6 +347,7 @@ public class ScheduleProductsController {
         public Id OLIId{get;set;}
         public string OLIName{get;set;}
         public string OLIProductCode{get;set;}
+        public string OLIDivisionCode {get;set;}
         public decimal OLIQuantity{get;set;}
         public decimal OLITotalPrice{get;set;}
         public date OLIServiceDate{get;set;}
@@ -360,6 +362,7 @@ public class ScheduleProductsController {
             OLIQuantity = o.Quantity;
             OLITotalPrice = o.TotalPrice.setScale(2);
             OLIServiceDate = o.ServiceDate;
+            OLIDivisionCode = o.Division_Code__c;
             isSelected=false;
         }
     }
