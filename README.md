@@ -2,7 +2,8 @@ Schedule Products
 ====
 Contents:
 ----
-<i>This should successfully deploy to any organisation that does not have multi-currency enabled. YOu need to ensure that the products used have got revenue scheduling enabled.</i>
+<i>This should successfully deploy to any organisation that does not have multi-currency enabled. 
+You need to ensure that the products used have got revenue scheduling enabled.</i>
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=EllieAtWHL&repo=Schedule-Products">
   <img alt="Deploy to Salesforce"
