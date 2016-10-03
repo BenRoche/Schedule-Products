@@ -18,7 +18,6 @@
                     </apex:column>
                     <apex:column headerValue="Product Name" value="{!OLI.OLIName}"/>
                     <apex:column headerValue="Product Code" value="{!OLI.OLIProductCode}"/>
-                    <apex:column headerValue="Division Code" value="{!OLI.OLIDivisionCode}"/>
                     <apex:column headerValue="Quantity">
                       	<apex:outputText value="{0, number, 0}">
                             <apex:param value="{!OLI.OLIQuantity}"/>
