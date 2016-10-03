@@ -14,14 +14,19 @@
         <name>ApexPage</name>
     </types>
     <types>
-        <members>Installment_Type__c.Days_Between_Schedules__c</members>
-        <members>Installment_Type__c.SortOrder__c</members>
+        <members>InstallmentType__mdt.Days_Between_Schedules__c</members>
+        <members>InstallmentType__mdt.Sort_Order__c</members>
         <name>CustomField</name>
     </types>
     <types>
-        <members>Installment_Type__c</members>
-        <members>Schedule_Type__c</members>
+        <members>InstallmentType__mdt</members>
+        <members>ScheduleType__mdt</members>
         <name>CustomObject</name>
+    </types>
+    <types>
+        <members>InstallmentType__mdt-Installment Type Layout</members>
+        <members>ScheduleType__mdt-Schedule Type Layout</members>
+        <name>Layout</name>
     </types>
     <types>
         <members>OpportunityLineItem.Schedule_Products</members>
