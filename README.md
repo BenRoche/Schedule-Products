@@ -34,15 +34,15 @@ pages
 **Read Me**
 * [readme.md][12]
 
-[1]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/classes/ScheduleProductsController.cls
-[2]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/classes/SelectOptionSorter.cls
-[3]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/classes/TestScheduleProducts.cls
-[4]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/classes/TestSelectOptionSorter.cls
-[5]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/objects/Installment_Type__c.object
-[6]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/objects/Schedule_Type__c.object
-[7]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/objects/OpportunityLineItem.object
-[8]: https://github.com/EllieAtWHL/Schedule-Productsg/blob/master/unpackaged/pages/ScheduleProducts.page
+[1]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/classes/ScheduleProductsController.cls
+[2]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/classes/SelectOptionSorter.cls
+[3]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/classes/TestScheduleProducts.cls
+[4]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/classes/TestSelectOptionSorter.cls
+[5]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/Installment_Type__c.object
+[6]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/Schedule_Type__c.object
+[7]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/objects/OpportunityLineItem.object
+[8]: https://github.com/EllieAtWHL/Schedule-Productsg/blob/master/Scheduling%2BProducts/pages/ScheduleProducts.page
 [10]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/InstallmentType.csv
 [11]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/ScheduleType.csv
 [12]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/README.md
-[13]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/unpackaged/package.xml
+[13]: https://github.com/EllieAtWHL/Schedule-Products/blob/master/Scheduling%2BProducts/package.xml
