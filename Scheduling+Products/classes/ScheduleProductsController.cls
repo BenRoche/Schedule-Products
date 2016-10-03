@@ -27,10 +27,10 @@ public class ScheduleProductsController {
     public ScheduleProductsController (ApexPages.StandardController sc) {
 	//Gets the opp that button was clicked from
         OppId=ApexPages.currentPage().getParameters().get('Oppid');
-        Opp = [SELECT Id, CloseDate, CurrencyIsoCode FROM Opportunity WHERE Id = :OppId];
+        Opp = [SELECT Id, CloseDate FROM Opportunity WHERE Id = :OppId];
         system.debug('Opportunity Information: ' + Opp);
 	//Gets the Line Items of the Opp
-        OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate, Division_Code__c FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
+        OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
         system.debug('Line Item Information: ' + OLIs);
 	//Creates a wrapper to combine the line items with the select box
         wrapOLIList = new list<wrapOLI>();
@@ -347,7 +347,6 @@ public class ScheduleProductsController {
         public Id OLIId{get;set;}
         public string OLIName{get;set;}
         public string OLIProductCode{get;set;}
-        public string OLIDivisionCode {get;set;}
         public decimal OLIQuantity{get;set;}
         public decimal OLITotalPrice{get;set;}
         public date OLIServiceDate{get;set;}
@@ -362,7 +361,6 @@ public class ScheduleProductsController {
             OLIQuantity = o.Quantity;
             OLITotalPrice = o.TotalPrice.setScale(2);
             OLIServiceDate = o.ServiceDate;
-            OLIDivisionCode = o.Division_Code__c;
             isSelected=false;
         }
     }
