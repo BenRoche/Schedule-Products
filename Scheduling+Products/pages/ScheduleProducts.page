@@ -24,7 +24,7 @@
                         </apex:outputText>
                     </apex:column>
                     <apex:column headerValue="Total Price">
-                        {!opp.CurrencyIsoCode}&nbsp;<apex:outputText value="{0, number, ###,###,###,###,##0.00}">
+                        <apex:outputText value="{0, number, ###,###,###,###,##0.00}">
                             <apex:param value="{!OLI.OLITotalPrice}"/>
                         </apex:outputText>
                     </apex:column>
