@@ -1,0 +1,84 @@
+<apex:page docType="html-5.0" standardController="Opportunity" sidebar="false" extensions="ScheduleProductsController">
+	<apex:pageMessages />
+    <apex:form >
+        <apex:pageBlock title="No Products on Opportunity" rendered="{!wrapOLIList.size=0}">
+            <apex:commandLink value="Add Products" action="{!addProduct}">
+                <apex:param name="addProductsURL" value="/p/opp/SelectSearch?addTo=oppid" assignTo="{!addProductsURL}"/>
+            </apex:commandLink>
+            or click 'Back' to return to the opportunity.
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Back" action="{!cancel}"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <apex:pageBlock title="Select Products" rendered="{!wrapOLIList.size!=0}">
+        	<apex:pageBlockSection columns="1">
+                <apex:pageBlockTable var="OLI" value="{!wrapOLIList}">
+                    <apex:column headerValue="Select">
+                        <apex:inputCheckbox value="{!OLI.isSelected}" id="selected"/>
+                    </apex:column>
+                    <apex:column headerValue="Product Name" value="{!OLI.OLIName}"/>
+                    <apex:column headerValue="Product Code" value="{!OLI.OLIProductCode}"/>
+                    <apex:column headerValue="Division Code" value="{!OLI.OLIDivisionCode}"/>
+                    <apex:column headerValue="Quantity">
+                      	<apex:outputText value="{0, number, 0}">
+                            <apex:param value="{!OLI.OLIQuantity}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="Total Price">
+                        {!opp.CurrencyIsoCode}&nbsp;<apex:outputText value="{0, number, ###,###,###,###,##0.00}">
+                            <apex:param value="{!OLI.OLITotalPrice}"/>
+                        </apex:outputText>
+                    </apex:column>
+                </apex:pageBlockTable> 
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="{!cancel}" value="Done" immediate="true" html-formnovalidate="formnovalidate"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <apex:pageBlock title="Establish Schedule" rendered="{!wrapOLIList.size!=0}">
+            <apex:pageBlockSection collapsible="false">
+                <apex:selectList value="{!tempSCH.scheduleType}" Label="Type" size="1" required="true" id="schType">
+                   <apex:selectOptions value="{!SplitOptions}"/> 
+                </apex:selectList>
+                <apex:selectList value="{!tempSCH.installmentType}" Label="Installment Type" size="1" required="true" id="insType">
+                	<apex:selectOptions value="{!TypeOptions}"/>
+                </apex:selectList>
+                <apex:input value="{!tempSCH.StartDate}" Label="Start Date" required="true" type="date" />
+                <apex:input value="{!tempSCH.numofInstallments}" Label="Number of Installments" required="true" type="number" id="numOfIns"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!recalculate}" value="Establish"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+  		<apex:pageBlock title="New Schedules" rendered="{!newSCHS != null}">
+           	<apex:pageBlockSection collapsible="false" columns="1">
+                <apex:pageBlockTable var="SCH" value="{!newSCHs}">
+                    <apex:column value="{!SCH.OpportunityLineItem.Name}"/>
+					<apex:column headerValue="Schedule Date">
+                        <apex:inputField value="{!SCH.ScheduleDate}"/>
+                    </apex:column>
+                    <apex:column headerValue="Revenue">
+                        <apex:inputField value="{!SCH.Revenue}" required="true" />
+                    </apex:column>                    
+                </apex:pageBlockTable> 
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!saveSchedule}" value="Save and Done" rendered="{!newSCHS != null}"/>
+                <apex:commandButton action="{!saveAndMore}" value="Save and More" rendered="{!newSCHS != null}"/>
+                <apex:commandButton action="{!cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <apex:pageBlock title="Existing Schedules" rendered="{!wrapOLIList.size!=0}">
+            <apex:pageBlockSection columns="1">
+                <apex:pageBlockTable var="SCH" value="{!SCHs}">
+                    <apex:column value="{!SCH.OpportunityLineItem.Name}"/>
+					<apex:column value="{!SCH.ScheduleDate}"/>
+                    <apex:column value="{!SCH.Revenue}"/>
+                </apex:pageBlockTable> 
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="{!cancel}" value="Done"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+	</apex:form>
+</apex:page>

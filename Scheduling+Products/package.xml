@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Scheduling Products</fullName>
+    <description>Temporary Change Set to retrieve xml</description>
+    <types>
+        <members>ScheduleProductsController</members>
+        <members>SelectOptionSorter</members>
+        <members>TestScheduleProducts</members>
+        <members>TestSelectOptionSorter</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>ScheduleProducts</members>
+        <name>ApexPage</name>
+    </types>
+    <types>
+        <members>Installment_Type__c.Days_Between_Schedules__c</members>
+        <members>Installment_Type__c.SortOrder__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>Installment_Type__c</members>
+        <members>Schedule_Type__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>OpportunityLineItem.Schedule_Products</members>
+        <name>WebLink</name>
+    </types>
+    <version>37.0</version>
+</Package>
