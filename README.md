@@ -2,7 +2,7 @@ Schedule Products
 ====
 Contents:
 ----
-<i>Please note: This is specifc to my organisation's instance of Salesforce. I am in the process of creating a more generic version that can be deployed to 'any' org.</i>
+<i>This should successfully deploy to any organisation that does not have multi-currency enabled. You will need to createthe data that sits within the custom settings for this to work successfully.</i>
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=EllieAtWHL&repo=Schedule-Products">
   <img alt="Deploy to Salesforce"
