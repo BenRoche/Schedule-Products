@@ -7,9 +7,9 @@ Please let me know of any bugs or enhancements you discover.</i>
 
 Instructions:
 ----
-In order to use this, you will need to addthe Schedule Products button to the Products related list on the relevant Opportunity page layout.
+In order to use this, just add the 'Schedule Products' button to the Products related list on the relevant Opportunity page layout.
 
-Click the button below andfollow the on-screen instructions.
+Click the button below and follow the on-screen instructions.
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=EllieAtWHL&repo=Schedule-Products">
   <img alt="Deploy to Salesforce"
