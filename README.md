@@ -28,7 +28,7 @@ pages
 
 **package**
 
-[package.xml] [13]
+* [package.xml] [13]
 
 **Read Me**
 * [readme.md][12]
