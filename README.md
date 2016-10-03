@@ -1,8 +1,11 @@
 Schedule Products
 ====
 
-<i>This should successfully deploy to any organisation that does not have multi-currency enabled. 
-You need to ensure that the products used have got Revenue Scheduling enabled.
+<i>Please note:
+* This should successfully deploy to any organisation that does not have multi-currency enabled. 
+* You need to ensure that the products used have got Revenue Scheduling enabled.
+* You may need to revise some of the coede if you have any validations in place.
+
 Please let me know of any bugs or enhancements you discover.</i>
 
 Instructions:
