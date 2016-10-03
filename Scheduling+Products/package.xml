@@ -19,6 +19,16 @@
         <name>CustomField</name>
     </types>
     <types>
+        <members>InstallmentType.Daily</members>
+        <members>InstallmentType.Monthly</members>
+        <members>InstallmentType.Quarterly</members>
+        <members>InstallmentType.Weekly</members>
+        <members>InstallmentType.Yearly</members>
+        <members>ScheduleType.Divide_Total_Amount_for_Installments</members>
+        <members>ScheduleType.Repeat_Total_Amount_for_Installments</members>
+        <name>CustomMetadata</name>
+    </types>
+    <types>
         <members>InstallmentType__mdt</members>
         <members>ScheduleType__mdt</members>
         <name>CustomObject</name>
