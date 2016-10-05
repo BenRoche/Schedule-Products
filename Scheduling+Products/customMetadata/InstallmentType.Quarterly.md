@@ -3,8 +3,12 @@
     <label>Quarterly</label>
     <protected>false</protected>
     <values>
-        <field>Days_Between_Schedules__c</field>
-        <value xsi:type="xsd:double">91.0</value>
+        <field>Length_Between_Schedules__c</field>
+        <value xsi:type="xsd:double">3.0</value>
+    </values>
+    <values>
+        <field>Period_Type__c</field>
+        <value xsi:type="xsd:string">Month</value>
     </values>
     <values>
         <field>Sort_Order__c</field>
