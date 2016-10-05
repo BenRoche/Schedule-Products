@@ -3,8 +3,12 @@
     <label>Daily</label>
     <protected>false</protected>
     <values>
-        <field>Days_Between_Schedules__c</field>
+        <field>Length_Between_Schedules__c</field>
         <value xsi:type="xsd:double">1.0</value>
+    </values>
+    <values>
+        <field>Period_Type__c</field>
+        <value xsi:type="xsd:string">Day</value>
     </values>
     <values>
         <field>Sort_Order__c</field>

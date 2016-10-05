@@ -4,9 +4,8 @@
  * Brief:	Allow salespeople to add the same schedule to multiple products at the same time
  * 			They can select products to apply the schedule to
  *
-*/ 
+*/
 public class ScheduleProductsController {
-	
 //Publically declaring variables
     public List<wrapOLI> wrapOLIList {get; set;}
     public List<OpportunityLineItem> selectedOLIs {get; set;}
@@ -70,10 +69,10 @@ public class ScheduleProductsController {
         }
         system.debug('recalculate | Schedule type is multiply: ' + multiply);
 	//Gets installment type
-        List <InstallmentType__mdt> tempTypeList = [SELECT Label, Days_Between_Schedules__c FROM InstallmentType__mdt WHERE Sort_Order__c = :tempSch.InstallmentType];
+        List <InstallmentType__mdt> tempTypeList = [SELECT Label, Length_Between_Schedules__c, Period_Type__c FROM InstallmentType__mdt WHERE Sort_Order__c = :tempSch.InstallmentType];
         InstallmentType__mdt tempType = tempTypeList[0];
-        Integer daysToAdd = Integer.valueof(tempType.Days_Between_Schedules__c);
-        system.debug('recalculate | Days to add: ' + daysToAdd);
+        //Integer toAdd = Integer.valueof(tempType.Length_Between_Schedules__c);
+        system.debug('recalculate | Time between schedules: ' + tempType.Length_Between_Schedules__c + ' ' + tempType.Period_Type__c);
 	//Gets start date
         system.debug('recalculate | Start Date: ' + tempSch.StartDate);
 	//Cleans schedule lists
@@ -105,20 +104,14 @@ public class ScheduleProductsController {
                 for (integer i=0;i<numofI;i++){
                     OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItem=o, OpportunityLineItemID = o.Id, Revenue=schAmount, ScheduleDate = tempStartDate, Type = 'Revenue');
                     system.debug('recalculate | New schedule created: ' + tempLIS);
-                    if(tempSch.InstallmentType == 1){
-                        tempStartDate = tempSCH.StartDate.addDays((i+1)*daysToAdd);
+                    if(tempType.Period_Type__c == 'Day'){
+                        tempStartDate = tempSCH.StartDate.addDays((i+1)*Integer.valueof(tempType.Length_Between_Schedules__c));
                     }
-                    else if(tempSch.InstallmentType == 2){
-                        tempStartDate = tempSCH.StartDate.addDays((i+1)*daysToAdd);
+                    else if(tempType.Period_Type__c == 'Month'){
+						tempStartDate = tempSCH.StartDate.addMonths((i+1)*Integer.valueof(tempType.Length_Between_Schedules__c));
                     }
-                    else if(tempSch.InstallmentType == 3){
-                        tempStartDate = tempSCH.StartDate.addMonths((i+1)*1);
-                    }
-                    else if(tempSch.InstallmentType == 4){
-                        tempStartDate = tempSCH.StartDate.addMonths((i+1)*3);
-                    }
-                    else if(tempSch.InstallmentType == 5){
-                        tempStartDate = tempSCH.StartDate.addYears((i+1)*1);
+                    else if(tempType.Period_Type__c == 'Year'){
+                        tempStartDate = tempSCH.StartDate.addYears((i+1)*Integer.valueof(tempType.Length_Between_Schedules__c));
                     }
                     newSCHs.add(tempLIS);
                 }

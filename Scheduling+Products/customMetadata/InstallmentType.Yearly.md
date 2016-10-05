@@ -3,8 +3,12 @@
     <label>Yearly</label>
     <protected>false</protected>
     <values>
-        <field>Days_Between_Schedules__c</field>
-        <value xsi:type="xsd:double">365.0</value>
+        <field>Length_Between_Schedules__c</field>
+        <value xsi:type="xsd:double">1.0</value>
+    </values>
+    <values>
+        <field>Period_Type__c</field>
+        <value xsi:type="xsd:string">Year</value>
     </values>
     <values>
         <field>Sort_Order__c</field>
