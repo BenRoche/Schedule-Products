@@ -42,7 +42,7 @@ public class TestScheduleProducts {
 //Create standard pricebookentry
         Pricebook2 standardPB = [SELECT Id FROM Pricebook2 WHERE isStandard = true LIMIT 1];
         PricebookEntry standardPBE = new PricebookEntry();
-	standardPBE.Pricebook2ID = standardPB.Id;
+		standardPBE.Pricebook2ID = standardPB.Id;
         standardPBE.Product2ID = aProduct.Id;
         standardPBE.UnitPrice = 0;
         standardPBE.isActive = true;
@@ -69,15 +69,17 @@ public class TestScheduleProducts {
       
 //Now actually test it!
         test.startTest();
-	ApexPages.currentPage().getParameters().put('oppId', opp.Id);
+		ApexPages.currentPage().getParameters().put('oppId', opp.Id);
         ApexPages.StandardController stdOpp = new ApexPages.StandardController(opp);
         ScheduleProductsController myController = new ScheduleProductsController(stdOpp);
         
       	list<SelectOption> testSplitOptions = myController.getSplitOptions();
-      	list<SelectOption> testTypeOptions = myController.getTypeOptions();        
+      	list<SelectOption> testTypeOptions = myController.getTypeOptions();
+		list<SelectOption> testSTypeOptions = myController.getScheduleByOptions();        
    		test.stopTest();
-   	system.assertEquals(2,testSplitOptions.size());
-        system.assertEquals(5,testTypeOptions.size());        
+   		system.assertEquals(2,testSplitOptions.size());
+        system.assertEquals(5,testTypeOptions.size());
+        system.assertEquals(3,testSTypeOptions.size());  
         System.assertEquals(myController.Opp.Id, opp.Id);
 	}
     
@@ -236,7 +238,7 @@ public class TestScheduleProducts {
         //Create standard pricebookentry
         Pricebook2 standardPB = [SELECT Id FROM Pricebook2 WHERE isStandard = true LIMIT 1];
         PricebookEntry standardPBE = new PricebookEntry();
-	standardPBE.Pricebook2ID = standardPB.Id;
+		standardPBE.Pricebook2ID = standardPB.Id;
         standardPBE.Product2ID = aProduct.Id;
         standardPBE.UnitPrice = 0;
         standardPBE.isActive = true;
@@ -263,7 +265,7 @@ public class TestScheduleProducts {
       
         //Now actually test it!
         test.startTest();
-	ApexPages.currentPage().getParameters().put('oppId', opp.Id);
+		ApexPages.currentPage().getParameters().put('oppId', opp.Id);
         ApexPages.StandardController stdOpp = new ApexPages.StandardController(opp);
         ScheduleProductsController myController = new ScheduleProductsController(stdOpp);
 		
@@ -277,16 +279,25 @@ public class TestScheduleProducts {
         myController.recalculate();
         
         //Ensure products selected and schedule information and iterates through the different options
-        myController.tempSch.scheduleType = 'Divide Total Amount For Installments';
-        myController.tempSch.installmentType = 2;
+        myController.tempSCH.scheduleBy = 'Revenue Schedule Only';
+        myController.tempRSch.scheduleType = 'Divide Total Amount For Installments';
+        myController.tempRSch.installmentType = 2;
         myController.tempSch.startDate = system.today();
-        myController.tempSch.numofInstallments = 4;
+        myController.tempRSch.numofInstallments = 4;
         myController.recalculate();
         
-        myController.tempSch.scheduleType = 'Repeat Total Amount for Installments';
+        myController.tempQSch.scheduleType = 'Divide Total Amount For Installments';
+        myController.recalculate();
+        
+        myController.tempSCH.scheduleBy = 'Quantity Schedule Only';
+        myController.tempQSch.scheduleType = 'Repeat Total Amount for Installments';
         myController.tempSch.installmentType = 1;
         myController.recalculate();
         
+        myController.tempRSch.scheduleType = 'Repeat Total Amount for Installments';
+        myController.recalculate();
+        
+        myController.tempSCH.scheduleBy = 'Quantity and Revenue Schedules';
         myController.tempSch.installmentType = 3;
         myController.recalculate();
         
@@ -383,7 +394,8 @@ public class TestScheduleProducts {
 	//Selects Products and adds the required schedule information
         for (ScheduleProductsController.wrapOLI wOLI : myController.wrapOLIList){
         	wOLI.isSelected = true;    
-        }  
+        }
+        
         myController.tempSch.scheduleType = 'Divide Total Amount For Installments';
         myController.tempSch.installmentType = 2;
         myController.tempSch.startDate = system.today();
@@ -392,7 +404,7 @@ public class TestScheduleProducts {
         myController.saveAndMore();
         
         myController.recalculate();
-        myController.saveSchedule();
+       	myController.saveAndMore();
         
         test.stopTest();
         

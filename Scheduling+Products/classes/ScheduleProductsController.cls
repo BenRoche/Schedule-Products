@@ -4,6 +4,10 @@
  * Brief:	Allow salespeople to add the same schedule to multiple products at the same time
  * 			They can select products to apply the schedule to
  *
+ * To do:	Make it possibleto choose quantity/revenue/both scheduling
+ * 			Use field sets????
+ * 			Hide Establish Schedule once establish clicked
+ * 			Change cancel button to reyurn Establish schedules and hide new schedules
 */
 public class ScheduleProductsController {
 //Publically declaring variables
@@ -12,15 +16,22 @@ public class ScheduleProductsController {
     public List<OpportunityLineItem> OLIs {get; set;}
     public List<OpportunityLineItemSchedule> SCHs {get; set;}
     public List<OpportunityLineItemSchedule> oldSCHs {get; set;}
+    public List<OpportunityLineItemSchedule> newrSCHs {get; set;}
+    public List<OpportunityLineItemSchedule> newqSCHs {get; set;}
+    public List<OpportunityLineItemSchedule> newbSCHs {get; set;}
     public List<OpportunityLineItemSchedule> newSCHs {get; set;}
     public List<OpportunityLineItemSchedule> newSCHsFinal {get; set;}
     public List<ApexPages.Message> errorMsgs {get; set;}
     public ID LineItemID {get; set;}
-    public integer numOfI {get; set;}
+    public integer numOfqI {get; set;}
+    public integer numOfrI {get; set;}
     public string OppId{get; set;}
     public Opportunity Opp {get; set;}
     public wrapSchedule tempSCH {get; set;}
+    public wrapSchedule tempQSCH {get; set;}
+    public wrapSchedule tempRSCH {get; set;}
     public String addProductsURL {get; set;}
+    public string sType {get; set;}
     
 //The constructor class
     public ScheduleProductsController (ApexPages.StandardController sc) {
@@ -29,7 +40,7 @@ public class ScheduleProductsController {
         Opp = [SELECT Id, CloseDate FROM Opportunity WHERE Id = :OppId];
         system.debug('Opportunity Information: ' + Opp);
 	//Gets the Line Items of the Opp
-        OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
+        OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate, Product2.CanUseQuantitySchedule, Product2.CanUseRevenueSchedule FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
         system.debug('Line Item Information: ' + OLIs);
 	//Creates a wrapper to combine the line items with the select box
         wrapOLIList = new list<wrapOLI>();
@@ -43,6 +54,8 @@ public class ScheduleProductsController {
         system.debug('Existing Schedule Information: ' + SCHs);
 	//Creates empty schedule info for CSR to complete
         tempSCH = new wrapSchedule(opp);
+        tempQSch = new wrapSchedule(opp);
+        tempRSch = new wrapSchedule(opp);
 	}
     
 //The establish (recalculate) action
@@ -55,28 +68,64 @@ public class ScheduleProductsController {
         Boolean oppSelected = false;
 	//Variable to store the calculated amount for the schedule
         Decimal schAmount;
-	//Gets the number of installments
-        numOfI = tempSch.numOfInstallments;
-        system.debug('recalculate | Number of installments: ' + numofI);
-        if(numofI < 1 || numOfI == null) {
+        Decimal schQuantity;
+    //Check schedule type
+    	sType = tempSCH.scheduleBy;
+    	//qSch = false;
+        //rSch = false;
+        if(sType=='Quantity Schedule Only'){
+            sType = 'Qty';
+        }
+        if(sType=='Revenue Schedule Only'){
+            sType = 'Rev';
+        }
+        if(sType=='Quantity and Revenue Schedules'){
+            sType = 'Both';
+        }
+        if(sType=='Rev'){
+            tempQSch.numOfInstallments = 0;
+        }
+        if(sType=='Qty'){
+            tempRSch.numOfInstallments = 0;
+        }
+        System.debug('sType:'+sType);
+    //Gets the number of quantity installments
+        numOfqI = tempQSch.numOfInstallments;
+        system.debug('recalculate | Number of quantity installments: ' + numofqI);
+        if(sType=='Qty' && (numofqI < 1 || numOfqI == null)) {
             okay=false;
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Number of Installments must be greater than 0'));
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Number of Quantity Installments must be greater than 0'));
+        }
+	//Gets the number of revenue installments
+        numOfrI = tempRSch.numOfInstallments;
+        system.debug('recalculate | Number of revenue installments: ' + numofrI);
+        if(sType=='Rev' && (numofrI < 1 || numOfrI == null)) {
+            okay=false;
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Number of Revenue Installments must be greater than 0'));
         }
 	//Gets the schedule type
-        Boolean multiply = false;
-        if(tempSch.scheduleType=='Repeat Total Amount for Installments') {
-            multiply = true;
+		Boolean qmultiply = false;
+        Boolean rmultiply = false;
+        if(tempqSch.scheduleType=='Repeat Total Amount for Installments') {
+            qmultiply = true;
         }
-        system.debug('recalculate | Schedule type is multiply: ' + multiply);
+        if(temprSch.scheduleType=='Repeat Total Amount for Installments') {
+            rmultiply = true;
+        }
+        system.debug('recalculate | Quantity Schedule type is multiply: ' + qmultiply);
+        system.debug('recalculate | Revenue Schedule type is multiply: ' + rmultiply);
 	//Gets installment type
-        List <InstallmentType__mdt> tempTypeList = [SELECT Label, Length_Between_Schedules__c, Period_Type__c FROM InstallmentType__mdt WHERE Sort_Order__c = :tempSch.InstallmentType];
-        InstallmentType__mdt tempType = tempTypeList[0];
-        //Integer toAdd = Integer.valueof(tempType.Length_Between_Schedules__c);
-        system.debug('recalculate | Time between schedules: ' + tempType.Length_Between_Schedules__c + ' ' + tempType.Period_Type__c);
-	//Gets start date
-        system.debug('recalculate | Start Date: ' + tempSch.StartDate);
+		List <InstallmentType__mdt> tempTypeList = [SELECT Label, Length_Between_Schedules__c, Period_Type__c FROM InstallmentType__mdt WHERE Sort_Order__c = :tempqSch.InstallmentType];
+        InstallmentType__mdt qtempType = tempTypeList[0];
+        system.debug('recalculate | Time between schedules: ' + qtempType.Length_Between_Schedules__c + ' ' + qtempType.Period_Type__c);
+        tempTypeList = [SELECT Label, Length_Between_Schedules__c, Period_Type__c FROM InstallmentType__mdt WHERE Sort_Order__c = :temprSch.InstallmentType];
+        InstallmentType__mdt rtempType = tempTypeList[0];
+        system.debug('recalculate | Time between schedules: ' + rtempType.Length_Between_Schedules__c + ' ' + rtempType.Period_Type__c);
 	//Cleans schedule lists
         oldSCHs = new List<OpportunityLineItemSchedule>();
+        newrSCHs = new List<OpportunityLineItemSchedule>();
+        newqSCHs = new List<OpportunityLineItemSchedule>();
+        newbSChs = new List<OpportunityLineItemSchedule>();
         newSCHs = new List<OpportunityLineItemSchedule>();
 	//Gets the selected Line Items
         selectedOLIs=new list<OpportunityLineItem>();
@@ -92,42 +141,122 @@ public class ScheduleProductsController {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'No products have been selected'));
             system.debug('recalculate | No products were selected');
         }
-	//Loop through line items
-        if (numOfI > 0) {
+	//Loop through line items for quantity
+        if (sType=='Qty' && numOfqI > 0) {
             for (OpportunityLineItem o : selectedOLIs) {
-                LineItemID = o.ID;
-                if (multiply == true){
-                    schAmount = o.TotalPrice;}
-                else {schAmount = o.TotalPrice / numOfI;}
-                date tempStartDate = tempSCH.StartDate;
-      		//Create the new schedules
-                for (integer i=0;i<numofI;i++){
-                    OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItem=o, OpportunityLineItemID = o.Id, Revenue=schAmount, ScheduleDate = tempStartDate, Type = 'Revenue');
-                    system.debug('recalculate | New schedule created: ' + tempLIS);
-                    if(tempType.Period_Type__c == 'Day'){
-                        tempStartDate = tempSCH.StartDate.addDays((i+1)*Integer.valueof(tempType.Length_Between_Schedules__c));
+                if(o.Product2.CanUseQuantitySchedule == true){
+                    LineItemID = o.ID;
+                    if (qmultiply == true){
+                        schQuantity = o.Quantity;}
+                    else {schQuantity = o.Quantity / numOfqI;}
+                    date tempStartDate = tempqSCH.StartDate;
+                //Create the new schedules
+                    for (integer i=0;i<numofqI;i++){
+                        OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItem=o, OpportunityLineItemID = o.Id, Quantity=schQuantity, ScheduleDate = tempStartDate, Type = 'Quantity');
+                        system.debug('recalculate | New schedule created: ' + tempLIS);
+                        if(qtempType.Period_Type__c == 'Day'){
+                            tempStartDate = tempSCH.StartDate.addDays((i+1)*Integer.valueof(qtempType.Length_Between_Schedules__c));
+                        }
+                        else if(qtempType.Period_Type__c == 'Month'){
+                            tempStartDate = tempSCH.StartDate.addMonths((i+1)*Integer.valueof(qtempType.Length_Between_Schedules__c));
+                        }
+                        else if(qtempType.Period_Type__c == 'Year'){
+                            tempStartDate = tempSCH.StartDate.addYears((i+1)*Integer.valueof(qtempType.Length_Between_Schedules__c));
+                        }
+                        newqSCHs.add(tempLIS);
                     }
-                    else if(tempType.Period_Type__c == 'Month'){
-						tempStartDate = tempSCH.StartDate.addMonths((i+1)*Integer.valueof(tempType.Length_Between_Schedules__c));
-                    }
-                    else if(tempType.Period_Type__c == 'Year'){
-                        tempStartDate = tempSCH.StartDate.addYears((i+1)*Integer.valueof(tempType.Length_Between_Schedules__c));
-                    }
-                    newSCHs.add(tempLIS);
                 }
-			//Get the old schedules
-                List <OpportunityLineItemSchedule> tempSCHs = [SELECT Id, ScheduleDate, Revenue, Quantity FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID = :LineItemID];
-                oldSCHs.addAll(tempSCHs);
+                else {
+                    okay = false;
+            		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Not all selected products have quantity scheduling enabled'));
+            		system.debug('recalculate | No quantity schedule');
+                }
             }
         }
+	//Loop through line items for revenue
+        if (sType=='Rev' && numOfrI > 0) {
+            for (OpportunityLineItem o : selectedOLIs) {
+                if(o.Product2.CanUseRevenueSchedule == true) {
+                    LineItemID = o.ID;
+                    if (rmultiply == true){
+                        schAmount = o.TotalPrice;}
+                    else {schAmount = o.TotalPrice / numOfrI;}
+                    date tempStartDate = temprSCH.StartDate;
+                //Create the new schedules
+                    for (integer i=0;i<numofrI;i++){
+                        OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItem=o, OpportunityLineItemID = o.Id, Revenue=schAmount, Quantity=schQuantity, ScheduleDate = tempStartDate, Type = 'Both');
+                        system.debug('recalculate | New schedule created: ' + tempLIS);
+                        if(rtempType.Period_Type__c == 'Day'){
+                            tempStartDate = tempSCH.StartDate.addDays((i+1)*Integer.valueof(rtempType.Length_Between_Schedules__c));
+                        }
+                        else if(rtempType.Period_Type__c == 'Month'){
+                            tempStartDate = tempSCH.StartDate.addMonths((i+1)*Integer.valueof(rtempType.Length_Between_Schedules__c));
+                        }
+                        else if(rtempType.Period_Type__c == 'Year'){
+                            tempStartDate = tempSCH.StartDate.addYears((i+1)*Integer.valueof(rtempType.Length_Between_Schedules__c));
+                        }
+                        newrSCHs.add(tempLIS);
+                    }
+                }
+            else{                
+                    okay = false;
+            		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Not all selected products have revenue scheduling enabled'));
+            		system.debug('recalculate | No revenue schedule');
+            	}
+            }
+        }
+        //Loop through line items for both
+        if (sType=='Both' && numOfrI > 0 && numOfqI > 0) {
+            for (OpportunityLineItem o : selectedOLIs) {
+                if(o.Product2.CanUseRevenueSchedule == true && o.Product2.CanUseQuantitySchedule == true) {
+                    LineItemID = o.ID;
+                    if (qmultiply == true){
+                        schQuantity = o.Quantity;}
+                    else {schQuantity = o.Quantity / numOfqI;}
+                    if (rmultiply == true){
+                        schAmount = o.TotalPrice;}
+                    else {schAmount = o.TotalPrice / numOfrI;}
+                    date tempStartDate = temprSCH.StartDate;
+                //Create the new schedules
+                    for (integer i=0;i<numofrI;i++){
+                        OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItem=o, OpportunityLineItemID = o.Id, Revenue=schAmount, ScheduleDate = tempStartDate, Type = 'Revenue');
+                        system.debug('recalculate | New schedule created: ' + tempLIS);
+                        if(rtempType.Period_Type__c == 'Day'){
+                            tempStartDate = tempSCH.StartDate.addDays((i+1)*Integer.valueof(rtempType.Length_Between_Schedules__c));
+                        }
+                        else if(rtempType.Period_Type__c == 'Month'){
+                            tempStartDate = tempSCH.StartDate.addMonths((i+1)*Integer.valueof(rtempType.Length_Between_Schedules__c));
+                        }
+                        else if(rtempType.Period_Type__c == 'Year'){
+                            tempStartDate = tempSCH.StartDate.addYears((i+1)*Integer.valueof(rtempType.Length_Between_Schedules__c));
+                        }
+                        newbSCHs.add(tempLIS);
+                    }
+                }
+            else{                
+                    okay = false;
+            		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Not all selected products have revenue scheduling enabled'));
+            		system.debug('recalculate | No revenue schedule');
+            	}
+            }
+        }
+        
+        newSCHs.addAll(newqSCHs);
+        newSCHs.addAll(newrSCHs);
+        newSCHs.addAll(newbSCHs);
+        //Get the old schedules
+        List <OpportunityLineItemSchedule> tempSCHs = [SELECT Id, ScheduleDate, Revenue, Quantity FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID = :LineItemID];
+        oldSCHs.addAll(tempSCHs);
         OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
 		Set<Id> OLIsIDs = (new Map<Id, SObject>(OLIs)).keyset();
         SCHs = [SELECT Id, OpportunityLineItem.Name, Quantity, Revenue, ScheduleDate FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID in :OLIsIDs];
-        system.debug('OLIList size: ' + wrapOLIList.size());
 	//If an error was found
         if(!okay){
             system.debug('recalculate | Error detected, database rolled back');
             Database.RollBack(sp);
+            newrSCHs = null;
+            newqSCHs = null;
+            newbSCHs = null;
             newSCHs = null;
             return null;
         }
@@ -137,6 +266,7 @@ public class ScheduleProductsController {
         oPageRef.setRedirect(false);
         return oPageRef;
   	}
+
 //The save action
     public PageReference saveSchedule(){
 	//Save point in case rollback required
@@ -164,13 +294,32 @@ public class ScheduleProductsController {
             List <OpportunityLineItemSchedule> tempSCHs = [SELECT Id FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID = :LineItemID];
             oldSCHs.addAll(tempSCHs);
         }
-	//Loop through line item schedules
-        system.debug('saveSchedule | Temporary Schedules: '+ newSCHs);
-        for (OpportunityLineItemSchedule olis : newSCHs) {                        
-            OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Revenue=olis.Revenue, ScheduleDate = olis.ScheduleDate, Type = 'Revenue');
-            system.debug('saveSchedule | New schedule created: ' + tempLIS);
-            newSCHsFinal.add(templis);
-        }  
+		//Loop through line item schedules
+            system.debug('saveAndMore | Temporary Schedules: '+ newrSCHs + newqSCHs);
+        	if(newrSCHS != null) {
+                for (OpportunityLineItemSchedule olis : newrSCHs) {                        
+                    OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Revenue=olis.Revenue, ScheduleDate = olis.ScheduleDate, Type = 'Revenue');
+                    //system.debug('saveAndMore | New schedule created: ' + tempLIS);
+                    newSCHsFinal.add(templis);
+                }
+            }
+        	if(newqSCHS != null) {
+                for (OpportunityLineItemSchedule olis : newqSCHs) {                        
+                    OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Quantity=olis.Quantity, ScheduleDate = olis.ScheduleDate, Type = 'Quantity');
+                    //system.debug('saveAndMore | New schedule created: ' + tempLIS);
+                    newSCHsFinal.add(templis);
+                }
+            }
+        	if(newbSCHS != null) {
+                for (OpportunityLineItemSchedule olis : newbSCHs) {                        
+                    OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Revenue=olis.Revenue, Quantity=olis.Quantity, ScheduleDate = olis.ScheduleDate, Type = 'Both');
+                    //system.debug('saveAndMore | New schedule created: ' + tempLIS);
+                    newSCHsFinal.add(templis);
+                }
+            }
+        
+        	List <OpportunityLineItemSchedule> tempSCHs = [SELECT Id FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID = :LineItemID];
+            oldSCHs.addAll(tempSCHs);
 	//Display old and new schedules for debugging
         system.debug('saveSchedule | Old Schedules: ' + oldSCHs);
         system.debug('saveSchedule | New Schedules: ' + newSCHsFinal);
@@ -181,7 +330,7 @@ public class ScheduleProductsController {
             system.debug('saveSchedule | Deletion of old schedules complete');
         }
 	//Check if there are schedules to add
-        if(newSCHs != null){
+        if(newSCHsFinal != null){
 		//Try adding schedules
             try{
                 insert newSCHsFinal;
@@ -230,19 +379,40 @@ public class ScheduleProductsController {
             //Loop through line items
             for (OpportunityLineItem o : selectedOLIs) {
                 system.debug('saveAndMore | LineItem: ' + o.Name);
-                LineItemID = o.ID;            
-                //Get the old schedules
-                List <OpportunityLineItemSchedule> tempSCHs = [SELECT Id FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID = :LineItemID];
-                oldSCHs.addAll(tempSCHs);
+                LineItemID = o.ID;
             }
             
             //Loop through line item schedules
-            system.debug('saveAndMore | Temporary Schedules: '+ newSCHs);
-            for (OpportunityLineItemSchedule olis : newSCHs) {                        
-                OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Revenue=olis.Revenue, ScheduleDate = olis.ScheduleDate, Type = 'Revenue');
-                system.debug('saveAndMore | New schedule created: ' + tempLIS);
-                newSCHsFinal.add(templis);
-            }  
+        	if(newrSCHS != null) {
+                 for (OpportunityLineItemSchedule olis : newrSCHs) {                        
+                    OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Revenue=olis.Revenue, ScheduleDate = olis.ScheduleDate, Type = 'Revenue');
+                    //system.debug('saveAndMore | New schedule created: ' + tempLIS);
+                    if(templis != null){
+                        newSCHsFinal.add(templis);
+                    }
+                }
+            }
+        	if(newqSCHS != null) {
+                for (OpportunityLineItemSchedule olis : newqSCHs) {                        
+                    OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Quantity=olis.Quantity, ScheduleDate = olis.ScheduleDate, Type = 'Quantity');
+                    //system.debug('saveAndMore | New schedule created: ' + tempLIS);
+                    if(templis != null){
+                        newSCHsFinal.add(templis);
+                    }
+                }
+            }
+        	if(newbSCHS != null) {
+                for (OpportunityLineItemSchedule olis : newbSCHs) {                        
+                    OpportunityLineItemSchedule tempLIS = new OpportunityLineItemSchedule(OpportunityLineItemID=olis.OpportunityLineItemId, Revenue=olis.Revenue, Quantity=olis.Quantity, ScheduleDate = olis.ScheduleDate, Type = 'Both');
+                    //system.debug('saveAndMore | New schedule created: ' + tempLIS);
+                    if(templis != null){
+                        newSCHsFinal.add(templis);
+                    }
+                }
+            }
+        
+        	List <OpportunityLineItemSchedule> tempSCHs = [SELECT Id FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID = :LineItemID];
+            oldSCHs.addAll(tempSCHs);
             //Display old and new shcedules for debugging
             system.debug('saveAndMore | Old Schedules: ' + oldSCHs);
             system.debug('saveAndMore | New Schedules: ' + newSCHsFinal);
@@ -250,12 +420,16 @@ public class ScheduleProductsController {
             //Check if there are old schedules to delete
             if(oldSCHs != null || oldSCHs.size() > 0){
                 //Try deleting schedules
-				delete oldSCHs;
+                Set<OpportunityLineItemSchedule> myset = new Set<OpportunityLineItemSchedule>();
+                List<OpportunityLineItemSchedule> oldSCHsNoDup = new List<OpportunityLineItemSchedule>();
+                myset.addAll(oldSCHs);
+                oldSCHsNoDup.addAll(myset);
+				delete oldSCHsNoDup;
                 system.debug('saveAndMore | Deletion of old schedules complete');
 			}
             
             //Check if there are schedules to add
-            if(newSCHs != null){
+            if(newSCHsFinal != null){
                 //Try adding schedules
                 try{
                     insert newSCHsFinal;
@@ -280,7 +454,8 @@ public class ScheduleProductsController {
         OLIs = [SELECT Name, Id, TotalPrice, Quantity, ProductCode, HasSchedule, OpportunityId, ServiceDate FROM OpportunityLineItem WHERE OpportunityId =:Opp.Id];
 		Set<Id> OLIsIDs = (new Map<Id, SObject>(OLIs)).keyset();
         SCHs = [SELECT Id, OpportunityLineItem.Name, Quantity, Revenue, ScheduleDate FROM OpportunityLineItemSchedule WHERE OpportunityLineItemID in :OLIsIDs];
-        newSCHs = null;
+        newqSCHs = null;
+        newrSCHs = null;
         
         PageReference oPageRef = Page.ScheduleProducts;
         oPageRef.setRedirect(false);
@@ -319,11 +494,11 @@ public class ScheduleProductsController {
         return splitOptions;
     }  
     
-    //This gets the installment options (e.g. daily/weekly) from the Installment Type custom setting
+    //This gets the schedule options (divide or multiple) from the Schedule Type custom metadata
     public List<SelectOption> getTypeOptions () {
          List<SelectOption> options = new List<SelectOption>();
          
-	//Values retrieved from the Installment Type custom setting
+	//This gets the installment options (e.g. daily/weekly) from the Installment Type custom metadata
 		List<InstallmentType__mdt> iTypes = [SELECT Label, Sort_Order__c FROM InstallmentType__mdt];
         for(InstallmentType__mdt setting : iTypes){
         	options.add(new SelectOption(String.ValueOf(setting.Sort_Order__c),setting.Label)); 
@@ -334,8 +509,20 @@ public class ScheduleProductsController {
         return options;
     }
     
+    //This gets the schedule by options (Revenue/Quantity) from the Schedule By custom metadata
+    public List<SelectOption> getScheduleByOptions () {
+        List<SelectOption> byOptions = new List<SelectOption>();
+        List<Schedule_By__mdt> bTypes = [SELECT Label FROM Schedule_By__mdt];
+        for(Schedule_By__mdt setting : bTypes){
+        	byOptions.add(new SelectOption(setting.Label,setting.Label)); 
+        } 
+        //SelectOptionSorter.doSort(byOptions, SelectOptionSorter.FieldToSort.Value);
+        system.debug('getScheduleByOption | Options for Schedule bY picklist: ' + byoptions);
+        return byOptions;
+    }
+    
     //This creates the wrapper object containing line itmes fields with a checkbox
-    @TestVisible public class wrapOLI{
+    public class wrapOLI{
         public OpportunityLineItem OLI{get;set;}
         public Id OLIId{get;set;}
         public string OLIName{get;set;}
@@ -359,17 +546,19 @@ public class ScheduleProductsController {
     }
    	
     //This creates the wrapper object for the schduling information
-    @TestVisible public class wrapSchedule{
+    public class wrapSchedule{
         public string scheduleType {get;set;}
         public decimal installmentType {get;set;}
         public date startDate {get;set;}
         public integer numofInstallments {get;set;}
+        public string scheduleBy {get;set;}
 
         
         public wrapSchedule(Opportunity opp){
         	startDate=opp.closeDate;
             scheduleType = 'Divide Total Amount For Installments';
             installmentType = 1;
+            scheduleBy = 'Revenue Schedule Only';
         }
     }
 }
